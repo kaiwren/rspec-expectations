@@ -574,6 +574,61 @@ module RSpec
               expect(maximizer.find_best_solution).to produce_result([], [])
             end
           end
+
+          describe "Issue #1006 contain_exactly" do
+            require "timeout"
+
+            let (:sub_array) do
+              ["y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2",
+               "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y3", "y4", "y5", "y6", "y6", "y6", "y7",
+               "y7", "y7", "y8", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9",
+               "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9",
+               "y9", "y9", "y9", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11",
+               "y11", "y11", "y11", "y16", "y16", "y16", "y17", "y17", "y17", "y17", "y18", "y18", "y18", "y19", "y19",
+               "y19", "y22"]
+            end
+
+            let (:array_that_hangs) do
+              ["y0", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1",
+               "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y1", "y2", "y3", "y4", "y5", "y5", "y5",
+               "y6", "y6", "y6", "y7", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8",
+               "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8",
+               "y8", "y8", "y8", "y8", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9",
+               "y9", "y9", "y10", "y10", "y10", "y11", "y11", "y11", "y11", "y12", "y12", "y12", "y13", "y13", "y13",
+               "y14"]
+            end
+
+            let (:array_that_does_not_hang) do
+              ["y1", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2",
+               "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y2", "y3", "y4", "y4", "y4",
+               "y4", "y4", "y4", "y4", "y4", "y4", "y4", "y4", "y5", "y6", "y6", "y6", "y6", "y6", "y7", "y7", "y7",
+               "y7", "y7", "y7", "y7", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y8", "y9", "y9",
+               "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9",
+               "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9", "y9",
+               "y9", "y10", "y10", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11", "y11",
+               "y11", "y11", "y11", "y11", "y11", "y11", "y12", "y13", "y14", "y14", "y15", "y16", "y16", "y16", "y16",
+               "y16", "y16", "y16", "y17", "y17", "y17", "y17", "y17", "y17", "y18", "y18", "y18", "y18", "y18", "y18",
+               "y19", "y19", "y19", "y19", "y19", "y19", "y20", "y20", "y21", "y21", "y22"]
+            end
+
+            let(:timeout) { 1 }
+
+            it "hangs when using the array_that_hangs" do
+              expect do
+                Timeout::timeout(timeout) do
+                  expect(array_that_hangs).to_not contain_exactly(*sub_array)
+                end
+              end.to raise_error(Timeout::Error)
+            end
+
+            it "executes without hanging when using the array_that_does_not_hang" do
+              expect do
+                Timeout::timeout(timeout) do
+                  expect(array_that_does_not_hang).to_not contain_exactly(*sub_array)
+                end
+              end.to_not raise_error
+            end
+          end
         end
       end
     end

@@ -12,6 +12,7 @@ Gemfile.lock
 .yardoc
 bin
 .rbx
+.idea
 Gemfile-custom
 bundle
 .rspec-local
